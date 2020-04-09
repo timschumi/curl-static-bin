@@ -1,20 +1,35 @@
+cmake_minimum_required(VERSION 3.12)
+
 add_library(curl-phony INTERFACE)
 target_include_directories(curl-phony INTERFACE include)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	target_link_directories(curl-phony INTERFACE lib)
-	if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x64")
-		target_link_libraries(curl-phony INTERFACE libcurl-x64)
-	else()
-		target_link_libraries(curl-phony INTERFACE libcurl)
-	endif()
-else()
-	target_link_directories(curl-phony INTERFACE lib/linux)
-	add_definitions("-DCURL_STATICLIB")
+# Add the base library to the Link list
+set(CURL_PHONY_LINKLIST curl)
 
-	if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x64")
-		target_link_libraries(curl-phony INTERFACE curl-x64 ssl-x64 crypto-x64)
-	else()
-		target_link_libraries(curl-phony INTERFACE curl ssl crypto)
-	endif()
+# Add openssl libraries if we are on Linux
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	list(APPEND CURL_PHONY_LINKLIST ssl crypto)
+endif()
+
+# Add -x64 suffix if we are building for x64
+if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x64")
+	list(TRANSFORM CURL_PHONY_LINKLIST APPEND "-x64")
+endif()
+
+# Add lib- library prefix for Windows
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	list(TRANSFORM CURL_PHONY_LINKLIST PREPEND "lib")
+endif()
+
+# Resolve the correct link directory
+string(TOLOWER ${CMAKE_SYSTEM_NAME} CURL_PHONY_LINKDIR)
+string(PREPEND CURL_PHONY_LINKDIR "lib/")
+
+# Actually set all the things
+target_link_directories(curl-phony INTERFACE ${CURL_PHONY_LINKDIR})
+target_link_libraries(curl-phony INTERFACE ${CURL_PHONY_LINKLIST})
+
+# TODO: Only Linux has staticlib support right now
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	target_compile_definitions(curl-phony INTERFACE "CURL_STATICLIB=1")
 endif()
