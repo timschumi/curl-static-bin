@@ -6,9 +6,9 @@ target_include_directories(curl-phony INTERFACE include)
 # Add the base library to the Link list
 set(CURL_PHONY_LINKLIST curl)
 
-# Add openssl libraries if we are on Linux
+# Add openssl and zlib libraries if we are on Linux
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	list(APPEND CURL_PHONY_LINKLIST ssl crypto)
+	list(APPEND CURL_PHONY_LINKLIST ssl crypto z)
 endif()
 
 # Add -x64 suffix if we are building for x64
