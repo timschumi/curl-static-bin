@@ -21,6 +21,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	list(TRANSFORM CURL_PHONY_LINKLIST PREPEND "lib")
 endif()
 
+# Link crypt32, WinSock2, wldap32 and Normaliz if we are on Windows
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	list(APPEND CURL_PHONY_LINKLIST crypt32 ws2_32 wldap32 normaliz)
+endif()
+
 # Resolve the correct link directory
 string(TOLOWER ${CMAKE_SYSTEM_NAME} CURL_PHONY_LINKDIR)
 string(PREPEND CURL_PHONY_LINKDIR "lib/")
@@ -29,7 +34,4 @@ string(PREPEND CURL_PHONY_LINKDIR "lib/")
 target_link_directories(curl-phony INTERFACE ${CURL_PHONY_LINKDIR})
 target_link_libraries(curl-phony INTERFACE ${CURL_PHONY_LINKLIST})
 
-# TODO: Only Linux has staticlib support right now
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	target_compile_definitions(curl-phony INTERFACE "CURL_STATICLIB=1")
-endif()
+target_compile_definitions(curl-phony INTERFACE "CURL_STATICLIB=1")
