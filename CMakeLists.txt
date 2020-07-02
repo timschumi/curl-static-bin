@@ -3,12 +3,12 @@ cmake_minimum_required(VERSION 3.12)
 add_library(curl-phony INTERFACE)
 target_include_directories(curl-phony INTERFACE include)
 
-# Add the base library to the Link list
-set(CURL_PHONY_LINKLIST curl)
+# Always link curl and zlib
+set(CURL_PHONY_LINKLIST curl z)
 
-# Add openssl and zlib libraries if we are on Linux
+# Add openssl if we are on Linux
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	list(APPEND CURL_PHONY_LINKLIST ssl crypto z)
+	list(APPEND CURL_PHONY_LINKLIST ssl crypto)
 endif()
 
 # Add -x64 suffix if we are building for x64
@@ -16,8 +16,8 @@ if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x64")
 	list(TRANSFORM CURL_PHONY_LINKLIST APPEND "-x64")
 endif()
 
-# Add lib- library prefix for Windows
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+# Add lib- library prefix for MSVC
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	list(TRANSFORM CURL_PHONY_LINKLIST PREPEND "lib")
 endif()
 
