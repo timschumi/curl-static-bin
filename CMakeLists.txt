@@ -3,8 +3,14 @@ cmake_minimum_required(VERSION 3.12)
 add_library(curl-phony INTERFACE)
 target_include_directories(curl-phony INTERFACE include)
 
-# Always link curl and zlib
-set(CURL_PHONY_LINKLIST curl z)
+if("${CURL_HTTPONLY}")
+	  set(CURL_PHONY_LINKLIST curl-httponly)
+else()
+	  set(CURL_PHONY_LINKLIST curl)
+endif()
+
+# zlib is always a dependency
+list(APPEND CURL_PHONY_LINKLIST z)
 
 # Add openssl if we are on Linux
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
