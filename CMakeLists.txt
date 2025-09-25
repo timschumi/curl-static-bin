@@ -27,9 +27,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	list(TRANSFORM CURL_PHONY_LINKLIST PREPEND "lib")
 endif()
 
-# Link crypt32, WinSock2, wldap32 and Normaliz if we are on Windows
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	list(APPEND CURL_PHONY_LINKLIST crypt32 ws2_32 wldap32 normaliz)
+	list(APPEND CURL_PHONY_LINKLIST crypt32 ws2_32 bcrypt secur32 iphlpapi)
+	if(NOT "${CURL_HTTPONLY}")
+		list(APPEND CURL_PHONY_LINKLIST wldap32)
+	endif()
 endif()
 
 # Resolve the correct link directory
